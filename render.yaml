@@ -1,0 +1,47 @@
+# Render Blueprint: Rails API (rootDir api) + managed PostgreSQL.
+# Migrations run once per deploy in the build step (Render's free plan has no
+# pre-deploy command); they never run on application boot.
+services:
+  - type: web
+    name: resolveiq-api
+    runtime: ruby
+    plan: free
+    region: frankfurt
+    rootDir: api
+    buildCommand: bundle install && bundle exec rails db:migrate && bundle exec rails db:seed
+    startCommand: bundle exec puma -C config/puma.rb
+    healthCheckPath: /api/v1/health
+    domains:
+      - api-resolveiq.mehmetdogandev.com
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: resolveiq-db
+          property: connectionString
+      - key: RAILS_ENV
+        value: production
+      - key: BUNDLE_WITHOUT
+        value: development:test
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: ADMIN_TOKEN
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: "0"
+      - key: RAILS_MAX_THREADS
+        value: "3"
+      - key: FRONTEND_ORIGIN
+        value: https://resolveiq.mehmetdogandev.com,http://localhost:3000
+      - key: ALLOWED_HOSTS
+        value: api-resolveiq.mehmetdogandev.com,.onrender.com
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_API_KEY
+        sync: false
+
+databases:
+  - name: resolveiq-db
+    plan: free
+    region: frankfurt
+    databaseName: resolveiq
+    user: resolveiq

@@ -1,0 +1,23 @@
+# Local development only: PostgreSQL for the Rails API.
+# Production uses Render's managed PostgreSQL (see docs/deployment.md).
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: resolveiq-pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: resolveiq
+      POSTGRES_PASSWORD: resolveiq
+      POSTGRES_DB: resolveiq_development
+    ports:
+      - "5434:5432"
+    volumes:
+      - resolveiq-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resolveiq"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  resolveiq-pg-data:
