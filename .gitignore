@@ -1,0 +1,39 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+**/config/master.key
+**/config/credentials/*.key
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Rails (api/)
+api/.bundle/
+api/vendor/bundle/
+api/log/*
+!api/log/.keep
+api/tmp/*
+!api/tmp/.keep
+api/storage/*
+api/coverage/
+api/.byebug_history
+
+# Next.js (web/)
+web/node_modules/
+web/.next/
+web/out/
+web/build/
+web/coverage/
+web/*.tsbuildinfo
+web/next-env.d.ts
+web/.vercel/
+web/npm-debug.log*
+
+# Local tooling
+.cursor/
+/sunum/
+*.pdf
