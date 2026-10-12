@@ -1,0 +1,25 @@
+# PostgreSQL. In every environment DATABASE_URL (if set) is merged on top of
+# these values. Local development uses the docker-compose Postgres on 5434.
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch("PGHOST", "localhost") %>
+  port: <%= ENV.fetch("PGPORT", 5434) %>
+  username: <%= ENV.fetch("PGUSER", "resolveiq") %>
+  password: <%= ENV.fetch("PGPASSWORD", "resolveiq") %>
+
+development:
+  <<: *default
+  database: resolveiq_development
+
+test:
+  <<: *default
+  database: resolveiq_test
+
+# Production reads the full connection string from DATABASE_URL (Render).
+production:
+  adapter: postgresql
+  encoding: unicode
+  max_connections: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  url: <%= ENV["DATABASE_URL"] %>
