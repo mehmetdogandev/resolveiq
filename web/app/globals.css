@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* ResolveIQ palette: deep navy surfaces, restrained teal accent. */
+  --color-navy-950: #07111f;
+  --color-navy-900: #0b1b33;
+  --color-navy-800: #12284a;
+  --color-navy-700: #1b3a66;
+  --color-accent-50: #effcf9;
+  --color-accent-100: #d3f5ee;
+  --color-accent-500: #14b8a6;
+  --color-accent-600: #0d9488;
+  --color-accent-700: #0f766e;
+}
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #f5f7fb;
+  color: #0f172a;
+}
+
+::selection {
+  background: #ccf3ec;
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
