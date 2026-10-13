@@ -8,10 +8,16 @@ module ActiveSupport
 
     # Minitest 6 ships without Object#stub; this temporarily overrides one method on one object.
     def with_stub(object, method_name, implementation)
+      singleton = object.singleton_class
+      original = singleton.instance_method(method_name) if singleton.method_defined?(method_name, false)
       object.define_singleton_method(method_name, implementation)
       yield
     ensure
-      object.singleton_class.send(:remove_method, method_name)
+      if original
+        singleton.define_method(method_name, original)
+      else
+        singleton.send(:remove_method, method_name)
+      end
     end
   end
 end
@@ -21,6 +27,22 @@ class ActionDispatch::IntegrationTest
 
   def json
     JSON.parse(response.body)
+  end
+
+  def seed!
+    DemoSeed.run!
+  end
+
+  def login_as(email, password: DemoSeed::PASSWORD)
+    api_post "/auth/login", params: { email: email, password: password }
+    assert_response :created, response.body
+  end
+
+  def manager_email = "selin@resolveiq.demo"
+  def agent_email = "burak@resolveiq.demo"
+
+  def ticket(ref)
+    Ticket.find_by!(external_ref: ref)
   end
 
   def default_headers
