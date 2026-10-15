@@ -1,24 +1,13 @@
-# README
+# ResolveIQ API (Rails 8.1)
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+ResolveIQ'nun JSON API'si. Proje açıklaması için kök [README.md](../README.md), mimari için [docs/architecture.md](../docs/architecture.md), canlı ortam için [docs/deployment.md](../docs/deployment.md).
 
-Things you may want to cover:
+```bash
+docker compose up -d           # kök dizinde, PostgreSQL
+bin/rails db:prepare           # şema + sentetik demo verisi
+AI_DEMO_MODE=1 bin/rails server -p 3001
+bin/rails test                 # Minitest
+bin/rails demo:reset           # demo verisini sıfırla
+```
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+`OPENAI_API_KEY` yalnızca sunucu ortam değişkeninde tutulur; anahtar yoksa ve `AI_DEMO_MODE` açık değilse AI uç noktaları 503 döner.

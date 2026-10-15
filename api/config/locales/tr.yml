@@ -1,0 +1,57 @@
+tr:
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      blank: "boş bırakılamaz"
+      present: "boş olmalı"
+      inclusion: "geçerli bir seçenek değil"
+      exclusion: "kullanılamaz"
+      invalid: "geçersiz"
+      taken: "zaten kullanılıyor"
+      too_long: "en fazla %{count} karakter olabilir"
+      too_short: "en az %{count} karakter olmalı"
+      not_a_number: "sayı olmalı"
+      in: "%{count} aralığında olmalı"
+      greater_than_or_equal_to: "%{count} veya daha büyük olmalı"
+      less_than_or_equal_to: "%{count} veya daha küçük olmalı"
+      required: "zorunlu"
+      confirmation: "eşleşmiyor"
+      restrict_dependent_destroy:
+        has_many: "bağlı %{record} kayıtları olduğu için silinemez"
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "Doğrulama başarısız: %{errors}"
+        required: "zorunlu"
+    attributes:
+      ticket:
+        subject: "Konu"
+        description: "Açıklama"
+        customer: "Müşteri"
+        channel: "Kanal"
+        status: "Durum"
+        priority: "Öncelik"
+        category: "Kategori"
+        product: "Ürün"
+      ticket_message:
+        body: "Mesaj"
+        internal: "İç not"
+      knowledge_article:
+        title: "Başlık"
+        body: "İçerik"
+        slug: "Kısa ad"
+        product: "Ürün"
+        category: "Kategori"
+        status: "Durum"
+      incident:
+        title: "Başlık"
+        summary: "Özet"
+        confidence: "Güven"
+      user:
+        name: "Ad"
+        email: "E-posta"
+        password: "Parola"
+        team: "Ekip"
+      customer:
+        name: "Ad"
+        email: "E-posta"
