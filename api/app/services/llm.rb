@@ -37,14 +37,14 @@ module Llm
 
     # fallback: a lambda returning a Hash that matches the schema. Used only in
     # fallback/fake modes; never silently substituted for a failed real call.
-    def complete(task:, system:, user:, schema:, fallback:)
+    def complete(task:, system:, prompt:, schema:, fallback:)
       case mode
       when "openai"
-        OpenaiClient.new(api_key: api_key, model: model).complete(system: system, user: user, schema: schema, schema_name: task)
+        OpenaiClient.new(api_key: api_key, model: model).complete(system: system, user: prompt, schema: schema, schema_name: task)
       when "fallback"
         Result.new(data: fallback.call.deep_stringify_keys, model: "heuristic-fallback", tokens_in: 0, tokens_out: 0, source: "fallback")
       when "fake"
-        data = test_responder ? test_responder.call(task, user) : fallback.call
+        data = test_responder ? test_responder.call(task, prompt) : fallback.call
         raise Error, data.message if data.is_a?(Exception)
 
         Result.new(data: data.deep_stringify_keys, model: "test-double", tokens_in: 120, tokens_out: 80, source: "fake")
