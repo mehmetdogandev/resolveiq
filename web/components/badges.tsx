@@ -1,7 +1,7 @@
 import { Globe, Mail, MessageCircle, Sparkles } from "lucide-react";
 import { CHANNEL_LABEL, INCIDENT_STATUS_LABEL, INCIDENT_STATUS_TONE, PRIORITY_LABEL, PRIORITY_TONE, SOURCE_LABEL, STATUS_LABEL, STATUS_TONE } from "@/lib/labels";
-import type { AgentRun, Channel, IncidentStatus, Priority, TicketStatus } from "@/lib/types";
-import { Badge } from "./ui";
+import type { AgentRun, Channel, IncidentStatus, Priority, SlaState, TicketSla, TicketStatus } from "@/lib/types";
+import { Badge, type Tone } from "./ui";
 
 export function StatusBadge({ status }: { status: TicketStatus }) {
   return <Badge tone={STATUS_TONE[status]}>{STATUS_LABEL[status]}</Badge>;
@@ -30,6 +30,25 @@ export function ChannelBadge({ channel }: { channel: Channel }) {
       {CHANNEL_LABEL[channel]}
     </Badge>
   );
+}
+
+const SLA_LABEL: Record<Exclude<SlaState, "none">, string> = {
+  ok: "SLA uygun",
+  warning: "SLA yaklaştı",
+  breached: "SLA ihlali",
+  met: "SLA karşılandı",
+};
+
+const SLA_TONE: Record<Exclude<SlaState, "none">, Tone> = {
+  ok: "green",
+  warning: "amber",
+  breached: "red",
+  met: "teal",
+};
+
+export function SlaBadge({ sla }: { sla: TicketSla | null | undefined }) {
+  if (!sla || sla.state === "none") return null;
+  return <Badge tone={SLA_TONE[sla.state]}>{sla.policy_name ? `${SLA_LABEL[sla.state]} · ${sla.policy_name}` : SLA_LABEL[sla.state]}</Badge>;
 }
 
 export function IncidentStatusBadge({ status }: { status: IncidentStatus }) {

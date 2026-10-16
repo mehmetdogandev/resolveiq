@@ -10,7 +10,7 @@ import { IncidentStatusBadge, StatusBadge } from "../badges";
 import { Button, Card, CardHeader, ErrorState } from "../ui";
 
 export function RelatedPanel({ ticket, onChanged }: { ticket: TicketDetail; onChanged: () => void }) {
-  const [busy, setBusy] = useState<number | null>(null);
+  const [busy, setBusy] = useState<number | string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function linkToIncident(incidentId: number) {
@@ -26,7 +26,34 @@ export function RelatedPanel({ ticket, onChanged }: { ticket: TicketDetail; onCh
     }
   }
 
-  const hasAnything = ticket.incidents.length + ticket.incident_suggestions.length + ticket.similar_tickets.length > 0;
+  async function mergeFrom(sourceId: number) {
+    setBusy(`merge-${sourceId}`);
+    setError(null);
+    try {
+      await api(`/tickets/${ticket.id}/merge`, { method: "POST", body: { source_ids: [sourceId] } });
+      onChanged();
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function linkRelated(relatedId: number) {
+    setBusy(`link-${relatedId}`);
+    setError(null);
+    try {
+      await api(`/tickets/${ticket.id}/link`, { method: "POST", body: { related_ticket_id: relatedId } });
+      onChanged();
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  const hasAnything =
+    ticket.incidents.length + ticket.incident_suggestions.length + ticket.similar_tickets.length + ticket.related_tickets.length + ticket.merged_tickets.length > 0;
 
   return (
     <Card>
@@ -62,21 +89,49 @@ export function RelatedPanel({ ticket, onChanged }: { ticket: TicketDetail; onCh
           </div>
         ))}
 
+        {ticket.related_tickets.length > 0 && (
+          <div>
+            <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-slate-400">Bağlı ticket&apos;lar</p>
+            <ul className="space-y-1.5">
+              {ticket.related_tickets.map((t) => (
+                <li key={`${t.link_kind}-${t.id}`}>
+                  <Link href={`/tickets/${t.id}`} className="flex items-center justify-between gap-2 rounded-md px-1.5 py-1 text-xs hover:bg-slate-50">
+                    <span>
+                      <span className="text-slate-500">{t.number}</span> {t.subject}
+                    </span>
+                    <StatusBadge status={t.status} />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {ticket.similar_tickets.length > 0 && (
           <div>
             <p className="mb-1.5 text-[11px] font-medium uppercase tracking-wide text-slate-400">Benzer ticket&apos;lar</p>
             <ul className="space-y-1.5">
               {ticket.similar_tickets.map((t) => (
                 <li key={t.id}>
-                  <Link href={`/tickets/${t.id}`} className="flex items-center justify-between gap-2 rounded-md px-1.5 py-1 text-xs hover:bg-slate-50">
-                    <span className="min-w-0">
+                  <div className="flex items-center justify-between gap-2 rounded-md px-1.5 py-1 text-xs">
+                    <Link href={`/tickets/${t.id}`} className="min-w-0 hover:bg-slate-50">
                       <span className="text-slate-500">{t.number}</span> <span className="truncate text-slate-800">{t.subject}</span>
-                    </span>
+                    </Link>
                     <span className="flex shrink-0 items-center gap-1.5">
                       <span className="text-[10px] text-slate-400">{percent(t.similarity)}</span>
                       <StatusBadge status={t.status} />
+                      {ticket.merged_into_id == null && (
+                        <>
+                          <Button size="sm" variant="ghost" loading={busy === `link-${t.id}`} onClick={() => void linkRelated(t.id)}>
+                            Bağla
+                          </Button>
+                          <Button size="sm" variant="secondary" loading={busy === `merge-${t.id}`} onClick={() => void mergeFrom(t.id)}>
+                            Birleştir
+                          </Button>
+                        </>
+                      )}
                     </span>
-                  </Link>
+                  </div>
                 </li>
               ))}
             </ul>

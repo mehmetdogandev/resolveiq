@@ -1,14 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { ChannelBadge, ChannelIcon, PriorityBadge, StatusBadge } from "@/components/badges";
+import { ChannelBadge, ChannelIcon, PriorityBadge, SlaBadge, StatusBadge } from "@/components/badges";
 import { CustomerHistory } from "@/components/customer-history";
 import { ChannelTabs, TicketFilterBar, useTicketQuery } from "@/components/tickets/ticket-filters";
-import { Button, Card, CardHeader, DemoDataNote, EmptyState, ErrorState, LoadingBlock, PageHeader, cn } from "@/components/ui";
+import { Button, Card, CardHeader, DemoDataNote, EmptyState, ErrorState, LoadingBlock, PageHeader, Select, cn } from "@/components/ui";
+import { api, errorMessage } from "@/lib/api";
 import { timeAgo } from "@/lib/format";
 import { useApi } from "@/lib/hooks";
-import type { TicketDetail, TicketList } from "@/lib/types";
+import type { TicketDetail, TicketList, TicketStatus } from "@/lib/types";
+import { STATUS_LABEL } from "@/lib/labels";
 
 export default function InboxPage() {
   const { values, apiQuery, setParams, rawParams } = useTicketQuery({ open_only: "true", sort: "priority" });
@@ -16,6 +19,29 @@ export default function InboxPage() {
   const selectedId = rawParams.get("selected") ?? (data?.tickets[0] ? String(data.tickets[0].id) : null);
   const selected = useApi<{ ticket: TicketDetail }>(selectedId ? `/tickets/${selectedId}` : null);
   const page = Number(values.page ?? 1);
+  const [picked, setPicked] = useState<number[]>([]);
+  const [bulkStatus, setBulkStatus] = useState<TicketStatus>("pending");
+  const [bulkError, setBulkError] = useState<string | null>(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
+
+  function toggle(id: number) {
+    setPicked((current) => (current.includes(id) ? current.filter((x) => x !== id) : [ ...current, id ]));
+  }
+
+  async function bulkUpdate() {
+    if (picked.length === 0) return;
+    setBulkBusy(true);
+    setBulkError(null);
+    try {
+      await api("/tickets/bulk_update", { method: "POST", body: { ids: picked, ticket: { status: bulkStatus } } });
+      setPicked([]);
+      await mutate();
+    } catch (err) {
+      setBulkError(errorMessage(err));
+    } finally {
+      setBulkBusy(false);
+    }
+  }
 
   return (
     <>
@@ -42,6 +68,25 @@ export default function InboxPage() {
       <div className="mb-4">
         <TicketFilterBar values={values} setParams={(next) => setParams({ ...next, selected: null })} compact />
       </div>
+      {picked.length > 0 && (
+        <div className="mb-3 flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm">
+          <span className="text-slate-600">{picked.length} seçili</span>
+          <Select value={bulkStatus} onChange={(e) => setBulkStatus(e.target.value as TicketStatus)} className="h-8 w-40 text-xs">
+            {(Object.keys(STATUS_LABEL) as TicketStatus[]).map((s) => (
+              <option key={s} value={s}>
+                {STATUS_LABEL[s]}
+              </option>
+            ))}
+          </Select>
+          <Button size="sm" loading={bulkBusy} onClick={() => void bulkUpdate()}>
+            Toplu güncelle
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setPicked([])}>
+            Seçimi temizle
+          </Button>
+          {bulkError && <span className="text-xs text-red-600">{bulkError}</span>}
+        </div>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
         <Card className="overflow-hidden">
@@ -59,13 +104,16 @@ export default function InboxPage() {
                 {data.tickets.map((t) => {
                   const active = String(t.id) === selectedId;
                   return (
-                    <li key={t.id}>
+                    <li key={t.id} className="flex items-start gap-1">
+                      <label className="pl-3 pt-4">
+                        <input type="checkbox" className="accent-accent-600" checked={picked.includes(t.id)} onChange={() => toggle(t.id)} aria-label={`${t.number} seç`} />
+                      </label>
                       <button
                         type="button"
                         onClick={() => setParams({ selected: String(t.id) }, false)}
                         aria-current={active ? "true" : undefined}
                         className={cn(
-                          "block w-full px-4 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-500",
+                          "block min-w-0 flex-1 px-3 py-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-500",
                           active ? "bg-accent-50" : "hover:bg-slate-50",
                         )}
                       >
@@ -79,6 +127,7 @@ export default function InboxPage() {
                         <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
                           <StatusBadge status={t.status} />
                           <PriorityBadge priority={t.priority} />
+                          <SlaBadge sla={t.sla} />
                           <span className="text-[11px] text-slate-500">{t.number}</span>
                           {!t.assignee && <span className="text-[11px] text-amber-700">· atanmamış</span>}
                         </span>

@@ -3,22 +3,39 @@
 import { useState } from "react";
 import { CheckCircle2, RotateCcw } from "lucide-react";
 import { api, errorMessage } from "@/lib/api";
+import { formatDateTime } from "@/lib/format";
 import { PRIORITY_LABEL, STATUS_LABEL } from "@/lib/labels";
 import type { Priority, TicketDetail, TicketStatus } from "@/lib/types";
+import { SlaBadge } from "../badges";
 import { useSession } from "../session";
-import { Button, Card, CardHeader, ErrorState, Field, Select } from "../ui";
+import { Button, Card, CardHeader, ErrorState, Field, Input, Select } from "../ui";
 
 export function PropertiesPanel({ ticket, onChange }: { ticket: TicketDetail; onChange: (t: TicketDetail) => void }) {
   const { me, meta } = useSession();
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [tagDraft, setTagDraft] = useState(ticket.tags.join(", "));
 
-  async function update(field: string, value: string | number | null) {
+  async function update(field: string, value: string | number | string[] | null) {
     setSaving(field);
     setError(null);
     try {
       const res = await api<{ ticket: TicketDetail }>(`/tickets/${ticket.id}`, { method: "PATCH", body: { ticket: { [field]: value } } });
       onChange(res.ticket);
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  async function applyMacro(macroId: number) {
+    setSaving("macro");
+    setError(null);
+    try {
+      const res = await api<{ ticket: TicketDetail }>(`/tickets/${ticket.id}/apply_macro`, { method: "POST", body: { macro_id: macroId } });
+      onChange(res.ticket);
+      setTagDraft(res.ticket.tags.join(", "));
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -94,6 +111,49 @@ export function PropertiesPanel({ ticket, onChange }: { ticket: TicketDetail; on
               </option>
             ))}
           </Select>
+        </Field>
+        {ticket.sla && (
+          <div className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs font-medium text-slate-600">SLA</p>
+              <SlaBadge sla={ticket.sla} />
+            </div>
+            <p className="mt-1 text-[11px] text-slate-500">
+              İlk yanıt: {formatDateTime(ticket.sla.first_response_due_at)} · Çözüm: {formatDateTime(ticket.sla.resolution_due_at)}
+            </p>
+          </div>
+        )}
+        <Field label="Makro" htmlFor="p-macro">
+          <Select
+            id="p-macro"
+            defaultValue=""
+            disabled={!!saving}
+            onChange={(e) => {
+              const id = e.target.value;
+              e.target.value = "";
+              if (id) void applyMacro(Number(id));
+            }}
+          >
+            <option value="">Makro uygula…</option>
+            {meta.macros.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.name}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field label="Etiketler" htmlFor="p-tags">
+          <Input
+            id="p-tags"
+            value={tagDraft}
+            disabled={!!saving}
+            onChange={(e) => setTagDraft(e.target.value)}
+            onBlur={() => {
+              const tags = tagDraft.split(",").map((t) => t.trim()).filter(Boolean);
+              if (tags.join(",") !== ticket.tags.join(",")) void update("tags", tags);
+            }}
+            placeholder="garanti, batarya"
+          />
         </Field>
         <Field label="Ürün" htmlFor="p-product">
           <Select id="p-product" value={ticket.product ?? ""} disabled={!!saving} onChange={(e) => void update("product", e.target.value || null)}>

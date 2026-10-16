@@ -9,7 +9,7 @@ import { ChannelIcon } from "../badges";
 import { useSession } from "../session";
 import { Button, Select, cn } from "../ui";
 
-export const FILTER_KEYS = ["q", "channel", "status", "priority", "assignee_id", "category", "product", "open_only", "sort", "page"] as const;
+export const FILTER_KEYS = ["q", "channel", "status", "priority", "assignee_id", "category", "product", "open_only", "sort", "page", "sla"] as const;
 
 export function useTicketQuery(defaults: Record<string, string> = {}) {
   const params = useSearchParams();

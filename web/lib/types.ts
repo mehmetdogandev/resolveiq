@@ -40,12 +40,39 @@ export type CustomerSummary = {
   city: string | null;
 };
 
+export type Macro = {
+  id: number;
+  name: string;
+  description: string | null;
+  actions: {
+    status?: TicketStatus;
+    priority?: Priority;
+    assignee_id?: number;
+    add_tags?: string[];
+    reply?: string;
+  };
+};
+
+export type SlaState = "none" | "ok" | "warning" | "breached" | "met";
+
+export type TicketSla = {
+  policy_id: number | null;
+  policy_name: string | null;
+  first_response_due_at: string | null;
+  resolution_due_at: string | null;
+  breached_at: string | null;
+  state: SlaState;
+};
+
+export type CsatRating = { id: number; score: number; comment: string | null; created_at: string };
+
 export type Meta = {
   products: CodeName[];
   categories: CodeName[];
   teams: CodeName[];
   users: UserSummary[];
   customers: CustomerSummary[];
+  macros: Macro[];
   ai: { configured: boolean; mode: AiMode; model: string | null };
 };
 
@@ -62,11 +89,15 @@ export type TicketSummary = {
   product_name: string | null;
   customer: CustomerSummary;
   assignee: UserSummary | null;
+  tags: string[];
   created_at: string;
   updated_at: string;
   resolved_at: string | null;
   first_response_at: string | null;
+  sla: TicketSla | null;
+  merged_into_id: number | null;
   similarity?: number;
+  link_kind?: "related" | "merged";
 };
 
 export type TicketMessage = {
@@ -184,8 +215,11 @@ export type TicketDetail = TicketSummary & {
   latest_triage: AgentRun<TriageOutput> | null;
   latest_resolution: AgentRun<ResolutionOutput> | null;
   similar_tickets: (TicketSummary & { similarity: number })[];
+  related_tickets: TicketSummary[];
+  merged_tickets: TicketSummary[];
   incident_suggestions: IncidentSummary[];
   activity: AuditEntry[];
+  csat: CsatRating | null;
   customer_history: { total_tickets: number; open_tickets: number };
   permissions: { can_manage: boolean };
 };
@@ -237,7 +271,7 @@ export type PendingAction = {
 export type Dashboard = {
   generated_at: string;
   synthetic_data: boolean;
-  totals: { open: number; urgent_high: number; unassigned: number; resolved: number; resolved_last_7d: number; mine_open: number };
+  totals: { open: number; urgent_high: number; unassigned: number; resolved: number; resolved_last_7d: number; mine_open: number; sla_breached: number; csat_average: number | null };
   by_status: Record<TicketStatus, number>;
   by_channel: Record<Channel, number>;
   by_priority: Record<Priority, number>;
@@ -246,6 +280,25 @@ export type Dashboard = {
   ai_cost_usd: number;
   recent_activity: AuditEntry[];
   pending_actions: PendingAction[];
+};
+
+export type Reports = {
+  generated_at: string;
+  totals: { tickets: number; open: number; resolved: number; breached_open: number };
+  first_reply: { average_minutes: number | null; count: number };
+  resolution: { average_minutes: number | null; count: number };
+  sla: { evaluated: number; met: number; breached: number; met_rate: number | null };
+  csat: { average: number | null; count: number; distribution: Record<number, number> };
+  by_channel: Record<Channel, { tickets: number; open: number; avg_first_reply_minutes: number | null; avg_resolution_minutes: number | null }>;
+  by_agent: {
+    user: UserSummary;
+    open: number;
+    resolved: number;
+    avg_first_reply_minutes: number | null;
+    avg_resolution_minutes: number | null;
+    csat_average: number | null;
+  }[];
+  by_priority: Record<Priority, number>;
 };
 
 export type AgentRunList = {

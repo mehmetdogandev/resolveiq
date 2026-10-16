@@ -28,3 +28,11 @@ export function formatUsd(value: number) {
 export function percent(value: number | null | undefined) {
   return value == null ? "—" : `%${Math.round(value * 100)}`;
 }
+
+export function formatMinutes(value: number | null | undefined) {
+  if (value == null) return "—";
+  if (value < 60) return `${Math.round(value)} dk`;
+  const hours = value / 60;
+  if (hours < 24) return `${hours.toFixed(1)} sa`;
+  return `${(hours / 24).toFixed(1)} gün`;
+}

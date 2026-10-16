@@ -12,6 +12,12 @@ Rails.application.routes.draw do
 
       get "meta", to: "meta#show"
       get "dashboard", to: "dashboard#show"
+      get "reports", to: "reports#show"
+      resources :macros, only: :index
+
+      get "help/articles", to: "help#articles"
+      get "help/articles/:id", to: "help#article"
+      post "help/requests", to: "help#create_request"
 
       resources :customers, only: %i[index show]
 
@@ -19,9 +25,16 @@ Rails.application.routes.draw do
         member do
           post :resolve
           post :reopen
+          post :apply_macro
+          post :merge
+          post :link
+          post :csat
           post :triage, to: "ai#triage"
           post "triage/apply", to: "ai#apply_triage"
           post :prepare_resolution, to: "ai#prepare_ticket_resolution"
+        end
+        collection do
+          post :bulk_update
         end
         resources :messages, only: :create, controller: "ticket_messages"
         resources :articles, only: %i[create destroy], controller: "ticket_articles"
