@@ -253,8 +253,42 @@ module DemoSeed
 
   module_function
 
+  SLA_POLICIES = [
+    { name: "Acil", first_reply_minutes: 30, resolution_minutes: 240, priority: "urgent", position: 0 },
+    { name: "Yüksek", first_reply_minutes: 60, resolution_minutes: 480, priority: "high", position: 1 },
+    { name: "Normal", first_reply_minutes: 240, resolution_minutes: 1440, priority: "normal", position: 2 },
+    { name: "Düşük", first_reply_minutes: 480, resolution_minutes: 2880, priority: "low", position: 3 }
+  ].freeze
+
+  MACROS = [
+    { name: "Batarya LED videosu iste", description: "Şarj LED davranışının videosunu ister ve ticket'ı beklemede bırakır.",
+      actions: { status: "pending", add_tags: [ "bilgi-istendi" ],
+                 reply: "Merhaba, şarj cihazındaki LED'in rengini ve yanıp sönme biçimini kısa bir videoyla paylaşabilir misiniz? Bataryanın seri numarasını da yazarsanız teşekkür ederiz." } },
+    { name: "Garanti süreci başlat", description: "Garanti ekibine atar ve fatura ister.",
+      actions: { category: "warranty", add_tags: [ "garanti" ],
+                 reply: "Merhaba, garanti değerlendirmesi için fatura veya satın alma belgenizin fotoğrafını ve ürünün seri numarasını iletmenizi rica ederiz. 2 iş günü içinde dönüş yapacağız." } },
+    { name: "Bilgi bankası ile kapat", description: "Müşteriye KB adımlarını hatırlatıp çözer.",
+      actions: { status: "resolved", add_tags: [ "kb" ],
+                 reply: "Merhaba, paylaştığımız kontrol adımları sorunu giderdiyse talebinizi çözüldü olarak işaretliyorum. Yeni bir belirti olursa yanıtlayarak yeniden açabilirsiniz." } }
+  ].freeze
+
+  AUTOMATION_RULES = [
+    { name: "Garanti anahtar kelimesi", event: "ticket_created", position: 0,
+      conditions: { keywords: [ "garanti", "iade", "değişim" ] },
+      actions: { category: "warranty", team: "warranty", add_tags: [ "garanti" ] } },
+    { name: "Acil güvenlik", event: "ticket_created", position: 1,
+      conditions: { keywords: [ "acil", "duman", "yangın", "kıvılcım" ] },
+      actions: { priority: "urgent", add_tags: [ "acil", "güvenlik" ] } },
+    { name: "PC-5 batarya etiketi", event: "ticket_created", position: 2,
+      conditions: { product: "pc5_battery" },
+      actions: { add_tags: [ "pc-5", "batarya" ], team: "battery" } }
+  ].freeze
+
   def run!(now: Time.current)
     ActiveRecord::Base.transaction do
+      seed_sla_policies
+      seed_macros
+      seed_automation_rules
       users = seed_users
       customers = seed_customers(now)
       articles = seed_articles(users, now)
@@ -264,8 +298,8 @@ module DemoSeed
   end
 
   def reset!
-    tables = [ AuditLog, IncidentTicket, TicketArticle, TicketMessage, Incident, AgentRun,
-               Ticket, KnowledgeArticle, Customer, Session, User ].map(&:table_name)
+    tables = [ CsatRating, TicketLink, AuditLog, IncidentTicket, TicketArticle, TicketMessage, Incident, AgentRun,
+               Ticket, KnowledgeArticle, Customer, Session, User, Macro, AutomationRule, SlaPolicy ].map(&:table_name)
     ActiveRecord::Base.connection.execute("TRUNCATE #{tables.join(', ')} RESTART IDENTITY CASCADE")
     run!
   end
@@ -303,6 +337,30 @@ module DemoSeed
     end
   end
 
+  def seed_sla_policies
+    SLA_POLICIES.each do |attrs|
+      policy = SlaPolicy.find_or_initialize_by(name: attrs[:name])
+      policy.assign_attributes(attrs)
+      policy.save!
+    end
+  end
+
+  def seed_macros
+    MACROS.each do |attrs|
+      macro = Macro.find_or_initialize_by(name: attrs[:name])
+      macro.assign_attributes(attrs)
+      macro.save!
+    end
+  end
+
+  def seed_automation_rules
+    AUTOMATION_RULES.each do |attrs|
+      rule = AutomationRule.find_or_initialize_by(name: attrs[:name])
+      rule.assign_attributes(attrs)
+      rule.save!
+    end
+  end
+
   def seed_tickets(users, customers, articles, now)
     TICKETS.each do |ref, cust_i, channel, status, priority, category, product, assignee_email, hours_ago, subject, description|
       next if Ticket.exists?(external_ref: ref)
@@ -325,12 +383,18 @@ module DemoSeed
         end
       end
       ticket.update_columns(updated_at: ticket.messages.maximum(:created_at) || created)
+      SlaAssigner.assign!(ticket)
 
       link = { "vc20-chuck" => "vc-20-matkap-mandren-kaymasi", "lm40-blade" => "lm-40-bicak-bakimi",
                "ig115-disc" => "ig-115-disk-degisimi-ve-guvenli-kullanim", "warranty-drill" => "garanti-kapsami-ve-basvuru",
                "pc5-contacts" => "pc-5-batarya-sarj-olmuyor-temel-kontroller", "return-saw" => "iade-ve-degisim-sureci" }[ref]
       article = articles.find { |a| a.slug == link }
       TicketArticle.create!(ticket: ticket, knowledge_article: article, linked_by: ticket.assignee) if article
+
+      if ticket.resolved? && %w[ig115-disc lm40-blade warranty-drill pc5-contacts return-saw].include?(ref)
+        score = { "warranty-drill" => 5, "return-saw" => 4, "pc5-contacts" => 5, "ig115-disc" => 4, "lm40-blade" => 5 }[ref]
+        ticket.create_csat_rating!(customer: ticket.customer, score: score, comment: "Demo CSAT kaydı")
+      end
     end
   end
 end
