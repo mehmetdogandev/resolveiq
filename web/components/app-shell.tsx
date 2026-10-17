@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, type FormEvent, type ReactNode } from "react";
-import { BookOpen, Inbox, LayoutDashboard, LogOut, Menu, Search, Sparkles, Ticket, X } from "lucide-react";
+import { BarChart3, BookOpen, Inbox, LayoutDashboard, LogOut, Menu, Search, Sparkles, Ticket, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { useApi } from "@/lib/hooks";
 import type { Dashboard } from "@/lib/types";
@@ -18,6 +18,7 @@ const NAV = [
   { href: "/inbox", label: "Gelen kutusu", icon: Inbox },
   { href: "/knowledge", label: "Bilgi bankası", icon: BookOpen },
   { href: "/ai-insights", label: "AI Insights", icon: Sparkles },
+  { href: "/reports", label: "Raporlar", icon: BarChart3 },
 ];
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {

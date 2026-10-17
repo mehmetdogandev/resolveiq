@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft, Building2, History } from "lucide-react";
-import { ChannelBadge, PriorityBadge, StatusBadge } from "@/components/badges";
+import { ChannelBadge, PriorityBadge, SlaBadge, StatusBadge } from "@/components/badges";
+import { CsatPanel } from "@/components/ticket/csat-panel";
 import { Conversation } from "@/components/ticket/conversation";
 import { KnowledgePanel } from "@/components/ticket/knowledge-panel";
 import { PropertiesPanel } from "@/components/ticket/properties-panel";
@@ -49,6 +50,12 @@ export default function TicketPage() {
             <StatusBadge status={ticket.status} />
             <PriorityBadge priority={ticket.priority} />
             <ChannelBadge channel={ticket.channel} />
+            <SlaBadge sla={ticket.sla} />
+            {ticket.tags.map((tag) => (
+              <span key={tag} className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600">
+                {tag}
+              </span>
+            ))}
             {ticket.category_name && <span className="text-xs text-slate-500">· {ticket.category_name}</span>}
           </div>
         </div>
@@ -94,6 +101,7 @@ export default function TicketPage() {
             </div>
           </Card>
           <PropertiesPanel ticket={ticket} onChange={setTicket} />
+          <CsatPanel ticket={ticket} onChange={setTicket} />
           <RelatedPanel ticket={ticket} onChanged={() => void mutate()} />
           <KnowledgePanel ticket={ticket} onTicket={setTicket} onDraft={applyDraft} currentDraft={draft} />
           <ResolutionPanel ticket={ticket} onDraft={applyDraft} />

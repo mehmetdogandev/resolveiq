@@ -72,12 +72,14 @@ export default function DashboardPage() {
         }
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-7">
         <Stat label="Açık talep" value={data.totals.open} icon={<Inbox className="size-4 text-slate-600" />} href="/tickets?open_only=true" />
         <Stat label="Acil / yüksek öncelik" value={data.totals.urgent_high} icon={<AlertTriangle className="size-4 text-red-600" />} href="/tickets?open_only=true&priority=urgent,high" tone="text-red-700" />
         <Stat label="Atanmamış" value={data.totals.unassigned} icon={<UserX className="size-4 text-amber-600" />} href="/tickets?open_only=true&assignee_id=none" />
         <Stat label="Son 7 günde çözülen" value={data.totals.resolved_last_7d} icon={<CheckCircle2 className="size-4 text-emerald-600" />} href="/tickets?status=resolved" />
         <Stat label="Bana atanan açık" value={data.totals.mine_open} icon={<Sparkles className="size-4 text-accent-600" />} href={`/tickets?open_only=true&assignee_id=${me.id}`} />
+        <Stat label="Açık SLA ihlali" value={data.totals.sla_breached} icon={<AlertTriangle className="size-4 text-red-600" />} href="/tickets?open_only=true&sla=breached" tone="text-red-700" />
+        <Stat label="CSAT ortalaması" value={data.totals.csat_average ?? "—"} icon={<CheckCircle2 className="size-4 text-emerald-600" />} href="/reports" />
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
