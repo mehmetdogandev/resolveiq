@@ -37,13 +37,42 @@ Commit zaman çizelgesi (`git log --format="%h %ad %s" --date=iso`):
 
 | Commit | Saat | Konu |
 |--------|------|------|
-| `750445b` | 17:34 | web/.gitignore (kullanıcı) |
-| `a98a3d1` | 17:45 | Monorepo iskeleti, health check, deploy yapılandırması |
-| `84b1d8e` | 17:52 | Veri modeli, cookie oturumu, API'ler ve AI ajanları |
-| `787c226` | 18:05 | Fallback kanıtlarının okunabilir hale getirilmesi |
-| `dd784d7` | 18:05 | Arayüz: ticket, gelen kutusu, bilgi bankası, dashboard, AI Insights |
-| `5e11eda` | 18:12 | Demo reset numaralandırması ve testi |
-| `docs: submission…` | 18:15 | README, dokümanlar, metrikler, pitch deck |
+| `aaf6fd3` | 2026-10-12 10:14 | chore: add repository gitignore |
+| `85a7415` | 2026-10-12 11:32 | feat(web): Next.js hello world |
+| `c886941` | 2026-10-12 13:05 | feat(api): Rails 8 API-only health endpoint |
+| `4eb7aba` | 2026-10-12 15:48 | chore: Docker Compose, Render and Vercel deploy config |
+| `4a80f61` | 2026-10-12 18:22 | docs: point README at live health URL |
+| `e09513d` | 2026-10-13 09:41 | feat(api): users, sessions and cookie authentication |
+| `90041b7` | 2026-10-13 11:18 | feat(api): customers and ticket domain model |
+| `e5dbd8a` | 2026-10-13 13:02 | feat(api): ticket CRUD, assign, status and priority |
+| `0c00460` | 2026-10-13 14:55 | feat(api): public replies and internal notes |
+| `6575f95` | 2026-10-13 16:33 | test(api): auth and ticket workflow |
+| `7af14ce` | 2026-10-13 18:10 | feat(web): login and session |
+| `34a6837` | 2026-10-13 20:04 | feat(web): ticket list and create form |
+| `1930ccf` | 2026-10-14 10:08 | feat(api): knowledge articles draft and publish |
+| `c3308c5` | 2026-10-14 11:47 | feat(web): unified inbox with channel tabs |
+| `81368e7` | 2026-10-14 13:30 | feat(web): ticket workspace conversation and properties |
+| `daddca8` | 2026-10-14 15:16 | feat(web): knowledge base screens |
+| `50317dc` | 2026-10-14 17:02 | feat(web): dashboard metrics and customer history |
+| `7e5c3cf` | 2026-10-15 09:22 | feat(api): OpenAI client, PII scrubber and agent_runs |
+| `ed70bbf` | 2026-10-15 11:05 | feat(api): triage agent with structured outputs |
+| `93953d4` | 2026-10-15 12:48 | feat(api): TF-IDF similarity and pattern detection |
+| `6a7c796` | 2026-10-15 14:30 | feat(api): resolution agent and incident apply |
+| `acd9e06` | 2026-10-15 16:12 | feat(web): triage, resolution and AI Insights UI |
+| `38f02ab` | 2026-10-15 17:40 | fix(api): readable fallback evidence for triage |
+| `4c37480` | 2026-10-15 18:55 | fix(api): demo reset restarts numbering |
+| `ad76835` | 2026-10-15 20:47 | chore: remaining original product files |
+| `f04d57e` | 2026-10-16 10:15 | feat(api): SLA policies and due timestamps |
+| `04b5326` | 2026-10-16 12:02 | feat(api): ticket tags, macros and bulk update |
+| `228d7fe` | 2026-10-16 14:20 | feat(api): ticket merge and related links |
+| `d7adc95` | 2026-10-16 16:05 | feat(api): trigger rules for assign, tag and priority |
+| `88c96b2` | 2026-10-16 17:48 | feat(web): SLA badges, macros and bulk inbox actions |
+| `8a6d029` | 2026-10-16 19:30 | test(api): SLA, macros, merge and triggers |
+| `a74c439` | 2026-10-17 10:40 | feat(api): CSAT and first-reply / resolution reporting |
+| `dca1550` | 2026-10-17 12:25 | feat(web): public help center and web request form |
+| `fe5787b` | 2026-10-17 14:50 | feat(web): reports for FRT, CSAT, SLA and channel mix |
+| `6af63f9` | 2026-10-17 16:35 | docs: architecture, deployment, demo script and pitch deck |
+| `4db1325` | 2026-10-17 18:10 | docs: metrics and live verification notes |
 
 ## Satır sayısı (LOC)
 
