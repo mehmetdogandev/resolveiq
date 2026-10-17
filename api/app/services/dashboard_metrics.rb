@@ -14,7 +14,9 @@ class DashboardMetrics
         unassigned: tickets.unresolved.where(assignee_id: nil).count,
         resolved: tickets.resolved.count,
         resolved_last_7d: tickets.resolved.where("resolved_at >= ?", 7.days.ago).count,
-        mine_open: tickets.unresolved.where(assignee_id: @user.id).count
+        mine_open: tickets.unresolved.where(assignee_id: @user.id).count,
+        sla_breached: Ticket.sla_breached_scope(tickets.unresolved.not_merged).count,
+        csat_average: CsatRating.average(:score)&.to_f&.round(2)
       },
       by_status: Ticket.statuses.keys.index_with { |s| 0 }.merge(tickets.group(:status).count),
       by_channel: Ticket.channels.keys.index_with { |c| 0 }.merge(tickets.unresolved.group(:channel).count),
