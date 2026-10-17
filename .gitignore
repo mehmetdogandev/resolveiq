@@ -35,5 +35,5 @@ web/npm-debug.log*
 
 # Local tooling
 .cursor/
-
-sunum/*
+/sunum/
+*.pdf
