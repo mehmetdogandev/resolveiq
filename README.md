@@ -41,6 +41,8 @@ Kaynaklara göre Stanley Black & Decker ayda yaklaşık **10.000 ticket** işliy
 | A | Ticket yönetimi | Oluşturma (doğrulamalı form), listeleme, sunucu taraflı filtre ve sıralama, atama, durum ve öncelik, müşteriye yanıt ve iç not, çözme ve yeniden açma, denetim kaydı |
 | B | Birleşik gelen kutusu ve müşteri geçmişi | E-posta, web formu ve canlı sohbet tek listede; kanal sekmeleri ve sayıları; durum/öncelik/sorumlu/kategori filtreleri; seçili talebin önizlemesi; müşterinin tüm kanallardaki geçmişi |
 | C | Bilgi bankası ve çözüm | Makale oluşturma/düzenleme, taslak ve yayın (yalnızca yönetici yayınlar), arama ve filtre, ticket'a makale bağlama, makale adımlarını tek tıkla yanıt taslağına ekleme, çözüp kapatma |
+| D | SLA, makro, otomasyon | Önceliğe göre ilk yanıt/çözüm hedefleri, hazır yanıt makroları, etiketler, toplu güncelleme, ticket birleştirme, anahtar kelime tetikleyicileri |
+| E | Help center, CSAT, rapor | Public yardım merkezi ve web formu, çözülen ticket CSAT, FRT/çözüm/SLA/kanal/temsilci raporları |
 
 Kanallar sentetiktir. Gerçek e-posta veya sohbet entegrasyonu yoktur; ticket'ın `channel` alanı kaynağı temsil eder.
 
@@ -138,7 +140,7 @@ Render (API + PostgreSQL, `render.yaml` Blueprint), Vercel (frontend, kök dizin
 
 ## Sınırlamalar
 
-- Kanallar simüle edilir; gerçek e-posta/sohbet/telefon entegrasyonu, SLA motoru, makro ve otomasyon kuralları yoktur.
+- Kanallar simüle edilir; gerçek e-posta/sohbet/telefon entegrasyonu yoktur. SLA, makro ve tetikleyiciler uygulama içi kurallardır (Twilio/WhatsApp/SSO yok).
 - Benzerlik araması basit bir TF-IDF ve önek kökleme kullanır; büyük hacimde vektör veritabanı gerekir.
 - Örüntü taraması elle tetiklenir (arka plan işi yok); her taramada en fazla birkaç grup LLM'e gönderilir.
 - Cookie oturumu frontend ve API aynı üst alan adı altında (`*.mehmetdogandev.com`) olduğu için çalışır. `*.vercel.app` önizleme adresinden giriş yapılamaz.
