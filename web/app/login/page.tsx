@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Bot, Layers, Workflow } from "lucide-react";
 import { ApiStatus } from "@/components/api-status";
@@ -116,6 +117,12 @@ export default function LoginPage() {
             </Button>
           </form>
 
+          <p className="mt-4 text-center text-xs text-slate-500">
+            Müşteri misiniz?{" "}
+            <Link href="/help" className="font-medium text-accent-700 hover:underline">
+              Yardım merkezini açın
+            </Link>
+          </p>
           <div className="mt-6 border-t border-slate-100 pt-4">
             <ApiStatus />
           </div>
