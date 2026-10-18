@@ -8,14 +8,23 @@ Canlı adres: https://resolveiq.mehmetdogandev.com. Sunum 5. dakikada kesilir; h
 2. Demo verisini sıfırla (önce METRICS.md'deki ürün içi AI maliyetini kaydet):
    `Invoke-RestMethod -Method Post "https://api-resolveiq.mehmetdogandev.com/api/v1/admin/demo_reset" -Headers @{ "X-Admin-Token" = "<ADMIN_TOKEN>" }`
 3. Tarayıcıda siteyi aç, çıkış yapılmış olsun. Yakınlaştırma %110, tek sekme.
-4. Pitch deck PDF'i ayrı pencerede hazır olsun.
+4. Pitch deck: `sunum/index.html` (Ok / PageDown ile slayt) veya Classroom PDF (`sunum/ResolveIQ-strateji.pdf` — HTML değiştiyse PDF’i yeniden yazdır).
 
 **Yedek plan:** OpenAI kesilirse AI uçları 502 döner ve ekranda hata görünür. Acil durumda Render'da `OPENAI_API_KEY` geçici olarak kaldırılıp `AI_DEMO_MODE=1` eklenebilir. Bu durumda tüm AI çıktıları "Fallback (LLM yok)" rozetiyle görünür ve sunumda bu açıkça söylenir.
 
-## 0:00 – 0:30 · Firma, SaaS, maliyet (slayt 1-2)
+## Slayt ↔ süre eşlemesi (`sunum/`)
+
+| Süre | Slayt | Ne gösterilir |
+|------|-------|----------------|
+| 0:00–0:30 | 1 | SBD + Fortune kanıtı + Zendesk + **$1.014.000** ölçek |
+| 0:30–3:30 | 2 (rehber) → **canlı site** | 3 iş akışı; slayt 3 yalnızca PDF yedeği |
+| 3:30–4:15 | 4 | Kullanılabilir pas (triage / örüntü / toplu çözüm) |
+| 4:15–5:00 | 5 → 6 | Metrik tablosu → make/buy + fiyatlama tezi |
+
+## 0:00 – 0:30 · Firma, SaaS, maliyet (slayt 1)
 
 - "Stanley Black & Decker, Zendesk ile Türkiye dahil dört ülkedeki çağrı merkezlerini tek platformda topladı ve ayda yaklaşık 10.000 ticket işliyor." (Kaynak: Zendesk müşteri hikayesi.)
-- "Zendesk'in herkese açık liste fiyatı yıllık ödemede temsilci başına aylık 55-115 dolar. 100 temsilcilik bir senaryoda bu yılda 66-138 bin dolar ediyor. Gerçek sözleşme bilinmiyor; bu bir senaryo."
+- "Ölçek için: Suite Enterprise örnek satırında 500 ajan × $169 → yılda yaklaşık **1 milyon dolar**. Bu SBD'nin gerçek sözleşmesi değil; koltuk başına modelin ne kadar şişebileceğini göstermek için."
 
 ## 0:30 – 3:30 · Canlı ürün (3 iş akışı + 3 ajan)
 
@@ -33,12 +42,12 @@ Canlı adres: https://resolveiq.mehmetdogandev.com. Sunum 5. dakikada kesilir; h
 
 ## 3:30 – 4:15 · AI-native fark: "kullanılabilir pas" (slayt 4)
 
+- "Kenara chatbot değil. Ajan bir sonraki adımı üretip önüme **uygulanabilir pas** koyuyor: triage'ta Önerileri uygula, olayda onayla, çözümde tek onayla altı müşteriye yaz."
 - "Klasik araçta uzman her ticket'ı okur, sınıflandırır, makale arar, yanıtı sıfırdan yazar. Aynı sorundan gelen şikayetleri fark etmek de bir insanın hafızasına kalır."
-- "ResolveIQ'da sonraki adım hep önceden hazırlanmış olarak önünüzde duruyor: triage önerisi, makale adımları, olası ortak sorun, ortak yanıt ve bilgi bankası taslağı. İnsan yalnızca karar veriyor."
 - "Hiçbir ajan müşteriye kendiliğinden yazmaz. Hipotez, yönetici onaylamadan doğrulanmış sayılmaz."
 
-## 4:15 – 5:00 · Rakamlar ve cevap (slayt 5-6)
+## 4:15 – 5:00 · Rakamlar ve cevap (slayt 5 → 6)
 
-- "Benim maliyetim: METRICS.md'deki geliştirme süresi ve token maliyeti. Ürün içi AI çağrılarının gerçek maliyeti `agent_runs` tablosunda; triage çağrısı ticket başına bir sentin onda biri mertebesinde."
-- "Firma Zendesk'i bırakmalı mı? Hayır: telefon, SLA, uyumluluk ve 60'tan fazla web sitesi entegrasyonu benim MVP'mde yok. Ama değerin taşındığı yer AI katmanı. Bu katmanı kendisi kurabilir ya da sonuç başına fiyatlanan bir eklenti olarak alabilir."
-- "Fiyatlama: koltuk başına değil, **hibrit**: düşük bir platform ücreti + çözülen olay veya doğru yönlendirilen ticket başına ücret. Token maliyeti müşterinin sorunu değil; sonuç onun sorunu."
+- "Benim maliyetim: **0,99 saat**, ~44 M token (API eşdeğeri ~12–39 $), **7.242 LOC**. Canlı AI: **0,00366 $** / 8 çağrı; triage ~0,0003 $/ticket."
+- "Firma Zendesk'i bırakmalı mı? **Hayır, hemen değil**: telefon, enterprise entegrasyon ve uyumluluk bu MVP'de yok. Ama değerin taşındığı yer AI katmanı — kendisi üretebilir veya eklenti alır."
+- "Fiyatlama: **koltuk başına değil**, hibrit: düşük platform ücreti + sonuç başına (doğru triage / çözülen olay). Token müşterinin sorunu değil; sonuç onun sorunu."
